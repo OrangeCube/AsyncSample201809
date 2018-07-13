@@ -1,0 +1,5 @@
+﻿yama_fukei,昔々
+fukei_mura_kaso,あるところに
+stand1_front09_ojiisan,おじいさんと
+stand1_front10_obaasan,おばあさんが
+fufu_engawa2,すんでいました。
