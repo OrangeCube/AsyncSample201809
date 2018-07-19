@@ -75,7 +75,7 @@ public class サーバーから画像とテキスト読み込んでページ送�
         {
             _text.text = content.Text;
             _image.texture = content.Image;
-            await _button.OnClickAsObservable().First().ToTask();
+            await _button.OnClickAsObservable().First();
         }
         _text.text = "おわり";
     }

@@ -21,7 +21,7 @@ public class テキストページ送り : MonoBehaviour
         for (var i = 1; i < 10; i++)
         {
             _text.text = $"{i}ページ目を表示。画面タップを待つ";
-            await _button.OnClickAsObservable().First().ToTask();
+            await _button.OnClickAsObservable().First();
         }
         _text.text = "おわり";
     }
