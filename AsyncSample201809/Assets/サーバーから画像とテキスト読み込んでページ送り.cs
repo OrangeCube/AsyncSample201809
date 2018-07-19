@@ -44,7 +44,7 @@ public class サーバーから画像とテキスト読み込んでページ送�
 
         await www;
 
-        const string BOM = "﻿";
+        const string BOM = "\uFEFF";
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
             .Split(new[] { "\r\n", BOM }, System.StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
