@@ -1,0 +1,9 @@
+﻿1,yama_fukei,昔々
+2,fukei_mura_kaso,あるところに
+3,stand1_front09_ojiisan,おじいさんと
+4,stand1_front10_obaasan,おばあさんが
+5,fufu_engawa2,すんでいました。
+6,stand1_front09_ojiisan,おじいさんは,山に芝刈りに:7,山にシヴァ狩りに:8
+7,,行きました。
+8,,行きに、ってシヴァ倒せるとかお爺さん何者だ,ちょっと考え直そう,6
+
