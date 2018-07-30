@@ -44,7 +44,7 @@ public class サーバーから画像とテキスト読み込んでページ送�
 
         await www;
 
-        const string BOM = "﻿";
+        const string BOM = "\uFEFF";
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
             .Split(new[] { "\r\n", BOM }, System.StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
@@ -75,7 +75,7 @@ public class サーバーから画像とテキスト読み込んでページ送�
         {
             _text.text = content.Text;
             _image.texture = content.Image;
-            await _button.OnClickAsObservable().First().ToTask();
+            await _button.OnClickAsObservable().First();
         }
         _text.text = "おわり";
     }

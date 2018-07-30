@@ -40,7 +40,7 @@ public class サーバーからテキスト読み込んでページ送り : Mono
         foreach(var line in story)
         {
             _text.text = line;
-            await _button.OnClickAsObservable().First().ToTask();
+            await _button.OnClickAsObservable().First();
         }
         _text.text = "おわり";
     }
