@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using UniRx;
@@ -15,8 +16,16 @@ public class 選択肢 : MonoBehaviour
 
     public async Task<int> AwaitSelect(string message, int storyId, CancellationToken ct)
     {
-        _text.text = message;
-        await _button.OnClickAsObservable().First().ToTask(ct);
-        return storyId;
+        try
+        {
+            _text.text = message;
+            await _button.OnClickAsObservable().First().ToTask(ct);
+            return storyId;
+        }
+        catch (Exception ex)
+        {
+            Debug.Log($"{message} is cancel {ex}");
+            throw ex;
+        }
     }
 }
