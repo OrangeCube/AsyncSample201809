@@ -34,7 +34,7 @@ public class 選択肢 : MonoBehaviour
         catch (Exception ex)
         {
             Debug.Log($"{message} is cancel {ex}");
-            throw ex;
+            throw;
         }
     }
 }
