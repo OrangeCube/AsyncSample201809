@@ -25,10 +25,15 @@ public class 選択肢を選ぶ : MonoBehaviour
     [SerializeField]
     private GameObject _選択肢Prefab;
 
+    private IAsyncClickEventHandler _clickHandler;
+
     void Start()
     {
+        _clickHandler = _button.GetAsyncClickEventHandler();
         選択肢を選ぶAsync("003").FireAndForget();
     }
+
+    void OnDestroy() => _clickHandler?.Dispose();
 
     private async UniTask 選択肢を選ぶAsync(string storyName)
     {
@@ -132,7 +137,7 @@ public class 選択肢を選ぶ : MonoBehaviour
             }
             else
             {
-                await _button.OnInvokeAsync();
+                await _clickHandler.OnClickAsync();
 
                 nextContentId = content.Id + 1;
             }
