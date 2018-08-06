@@ -18,10 +18,10 @@ public class サーバーから画像とテキスト読み込んでページ送�
 
     void Start()
     {
-        サーバーから画像とテキスト読み込んでページ送りAsync("002").FireAndForget();
+        RunAsync("002").FireAndForget();
     }
 
-    private async Task サーバーから画像とテキスト読み込んでページ送りAsync(string storyName)
+    private async Task RunAsync(string storyName)
     {
         var story = await LoadStoryAsync(storyName);
         await ページ送りAsync(story);
