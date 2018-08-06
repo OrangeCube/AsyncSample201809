@@ -1,4 +1,5 @@
 {
-	"dependencies": {
-	}
+  "dependencies": {
+    "com.unity.incrementalcompiler": "0.0.42-preview.16"
+  }
 }
