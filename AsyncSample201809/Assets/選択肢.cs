@@ -14,16 +14,11 @@ public class 選択肢 : MonoBehaviour
     [SerializeField]
     private Button _button;
 
-    private IAsyncClickEventHandler _handler;
+    private IObservable<Unit> _onClick;
 
     private void Awake()
     {
-        _handler = _button.GetAsyncClickEventHandler();
-    }
-
-    private void OnDestroy()
-    {
-        _handler?.Dispose();
+        _onClick = _button.OnClickAsObservable();
     }
 
     public async UniTask<int> AwaitSelect(string message, int storyId, CancellationToken ct)
@@ -31,7 +26,8 @@ public class 選択肢 : MonoBehaviour
         try
         {
             _text.text = message;
-            await _handler.OnClickAsync().WithCancellation(ct);
+
+            await _onClick.ToUniTask(ct, true);
 
             return storyId;
         }
