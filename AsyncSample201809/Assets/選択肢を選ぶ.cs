@@ -23,7 +23,7 @@ public class 選択肢を選ぶ : MonoBehaviour
     private RectTransform _選択肢Container;
 
     [SerializeField]
-    private GameObject _選択肢Prefab;  
+    private GameObject _選択肢Prefab;
 
     void Start()
     {
@@ -124,7 +124,10 @@ public class 選択肢を選ぶ : MonoBehaviour
 
                 foreach (Transform c in _選択肢Container)
                 {
-                    Destroy(c.gameObject);
+                    if (!c.gameObject.activeSelf)
+                        continue;
+                    c.gameObject.SetActive(false);
+                    _選択肢プール.Push(c.GetComponent<選択肢>());
                 }
             }
             else
@@ -141,12 +144,19 @@ public class 選択肢を選ぶ : MonoBehaviour
         _text.text = "おわり";
     }
 
+    private Stack<選択肢> _選択肢プール = new Stack<選択肢>();
+
     private IEnumerable<UniTask<int>> Create選択肢(SelectionContent[] selectionContents, CancellationToken ct)
     {
         foreach (var content in selectionContents)
         {
-            var instance = Instantiate(_選択肢Prefab, _選択肢Container, false);
+            var instance = _選択肢プール.Count > 0 ? _選択肢プール.Pop().gameObject : Instantiate(_選択肢Prefab, _選択肢Container, false);
+            if (!instance.activeSelf)
+            {
+                instance.SetActive(true);
+                instance.transform.SetAsLastSibling();
+            }
             yield return instance.GetComponent<選択肢>().AwaitSelect(content.Message, content.StoryId, ct);
         }
     }
- }
+}
