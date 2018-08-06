@@ -5,6 +5,7 @@ using System.Threading;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class 選択肢を選ぶ : MonoBehaviour
@@ -93,13 +94,12 @@ public class 選択肢を選ぶ : MonoBehaviour
             return null;
 
         var url = $"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Images/{imageName}.png";
-        Debug.Log(url);
 
-        var www = new WWW(url);
+        var request = UnityWebRequestTexture.GetTexture(url);
 
-        await www;
+        await request.SendWebRequest().ConfigureAwait(progress => Debug.Log($"{imageName} dounloading.. {progress}"));
 
-        return www.texture;
+        return DownloadHandlerTexture.GetContent(request);
     }
 
     private async UniTask ページ送りAsync(StoryContent[] story)

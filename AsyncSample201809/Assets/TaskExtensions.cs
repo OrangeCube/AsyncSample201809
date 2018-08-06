@@ -38,4 +38,22 @@ public static partial class TaskExtensions
                 Debug.LogException(ex);
         });
     }
+
+    public static UniTask ConfigureAwait(this AsyncOperation operation, Action<float> onProgress)
+        => operation.ConfigureAwait(new ProgressHandler(onProgress));
+
+    private struct ProgressHandler : IProgress<float>
+    {
+        private Action<float> _onProgress;
+
+        public ProgressHandler(Action<float> onProgress)
+        {
+            _onProgress = onProgress;
+        }
+
+        public void Report(float value)
+        {
+            _onProgress?.Invoke(value);
+        }
+    }
 }
