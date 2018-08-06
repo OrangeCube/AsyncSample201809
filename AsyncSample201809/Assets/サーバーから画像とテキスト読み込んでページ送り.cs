@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
 

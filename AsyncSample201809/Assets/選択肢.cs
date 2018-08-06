@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,12 +14,13 @@ public class 選択肢 : MonoBehaviour
     [SerializeField]
     private Button _button;
 
-    public async Task<int> AwaitSelect(string message, int storyId, CancellationToken ct)
+    public async UniTask<int> AwaitSelect(string message, int storyId, CancellationToken ct)
     {
         try
         {
             _text.text = message;
-            await _button.OnClickAsObservable().First().ToTask(ct);
+            await _button.OnInvokeAsync().WithCancellation(ct);
+
             return storyId;
         }
         catch (Exception ex)
