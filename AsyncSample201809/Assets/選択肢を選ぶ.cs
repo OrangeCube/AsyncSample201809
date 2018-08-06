@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using UniRx;
+using UniRx.Async;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class 選択肢を選ぶ : MonoBehaviour
@@ -22,14 +23,19 @@ public class 選択肢を選ぶ : MonoBehaviour
     private RectTransform _選択肢Container;
 
     [SerializeField]
-    private GameObject _選択肢Prefab;  
+    private GameObject _選択肢Prefab;
+
+    private IAsyncClickEventHandler _clickHandler;
 
     void Start()
     {
+        _clickHandler = _button.GetAsyncClickEventHandler();
         選択肢を選ぶAsync("003").FireAndForget();
     }
 
-    private async Task 選択肢を選ぶAsync(string storyName)
+    void OnDestroy() => _clickHandler?.Dispose();
+
+    private async UniTask 選択肢を選ぶAsync(string storyName)
     {
         var story = await LoadStoryAsync(storyName);
         await ページ送りAsync(story);
@@ -63,7 +69,7 @@ public class 選択肢を選ぶ : MonoBehaviour
         }
     }
 
-    private async Task<StoryContent[]> LoadStoryAsync(string storyName)
+    private async UniTask<StoryContent[]> LoadStoryAsync(string storyName)
     {
         var www = new WWW($"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Story/{storyName}.txt?timestamp={DateTime.Now}");
 
@@ -71,9 +77,9 @@ public class 選択肢を選ぶ : MonoBehaviour
 
         const string BOM = "\uFEFF";
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
-            .Split(new[] { "\r\n", BOM }, System.StringSplitOptions.None)
+            .Split(new[] { "\r\n", BOM }, StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(async x =>
+            .Select<string, UniTask<StoryContent>>(async x =>
             {
                 var content = x.Split(',');
                 var selectionContents = content.Skip(3).Select(y =>
@@ -84,25 +90,24 @@ public class 選択肢を選ぶ : MonoBehaviour
                 return new StoryContent(int.Parse(content[0]), await LoadImageAsync(content[1]), content[2], selectionContents.ToArray());
             });
 
-        return await Task.WhenAll(contents);
+        return await UniTask.WhenAll(contents);
     }
 
-    private async Task<Texture2D> LoadImageAsync(string imageName)
+    private async UniTask<Texture2D> LoadImageAsync(string imageName)
     {
         if (string.IsNullOrEmpty(imageName))
             return null;
 
         var url = $"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Images/{imageName}.png";
-        Debug.Log(url);
 
-        var www = new WWW(url);
+        var request = UnityWebRequestTexture.GetTexture(url);
 
-        await www;
+        await request.SendWebRequest().ConfigureAwait(progress => Debug.Log($"{imageName} dounloading.. {progress}"));
 
-        return www.texture;
+        return DownloadHandlerTexture.GetContent(request);
     }
 
-    private async Task ページ送りAsync(StoryContent[] story)
+    private async UniTask ページ送りAsync(StoryContent[] story)
     {
         var content = story.First();
         var contents = story.ToDictionary(x => x.Id);
@@ -118,18 +123,22 @@ public class 選択肢を選ぶ : MonoBehaviour
                 using (var cts = new CancellationTokenSource())
                 {
                     var 選択肢 = Create選択肢(content.SelectionContents, cts.Token);
-                    nextContentId = (await Task.WhenAny(選択肢)).Result;
+                    nextContentId = (await UniTask.WhenAny(選択肢.ToArray())).result;
                     cts.Cancel();
                 }
 
                 foreach (Transform c in _選択肢Container)
                 {
-                    Destroy(c.gameObject);
+                    if (!c.gameObject.activeSelf)
+                        continue;
+                    c.gameObject.SetActive(false);
+                    _選択肢プール.Push(c.GetComponent<選択肢>());
                 }
             }
             else
             {
-                await _button.OnClickAsObservable().First();
+                await _clickHandler.OnClickAsync();
+
                 nextContentId = content.Id + 1;
             }
 
@@ -140,12 +149,19 @@ public class 選択肢を選ぶ : MonoBehaviour
         _text.text = "おわり";
     }
 
-    private IEnumerable<Task<int>> Create選択肢(SelectionContent[] selectionContents, CancellationToken ct)
+    private Stack<選択肢> _選択肢プール = new Stack<選択肢>();
+
+    private IEnumerable<UniTask<int>> Create選択肢(SelectionContent[] selectionContents, CancellationToken ct)
     {
         foreach (var content in selectionContents)
         {
-            var instance = Instantiate(_選択肢Prefab, _選択肢Container, false);
+            var instance = _選択肢プール.Count > 0 ? _選択肢プール.Pop().gameObject : Instantiate(_選択肢Prefab, _選択肢Container, false);
+            if (!instance.activeSelf)
+            {
+                instance.SetActive(true);
+                instance.transform.SetAsLastSibling();
+            }
             yield return instance.GetComponent<選択肢>().AwaitSelect(content.Message, content.StoryId, ct);
         }
     }
- }
+}
