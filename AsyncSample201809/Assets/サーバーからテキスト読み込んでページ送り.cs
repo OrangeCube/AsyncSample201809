@@ -15,10 +15,10 @@ public class サーバーからテキスト読み込んでページ送り : Mono
 
     void Start()
     {
-        サーバーからテキスト読み込んでページ送りAsync("001").FireAndForget();
+        RunAsync("001").FireAndForget();
     }
 
-    private async Task サーバーからテキスト読み込んでページ送りAsync(string storyName)
+    private async Task RunAsync(string storyName)
     {
         var story = await LoadStoryAsync(storyName);
         await テキストページ送りAsync(story);

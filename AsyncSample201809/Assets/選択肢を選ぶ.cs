@@ -30,12 +30,12 @@ public class 選択肢を選ぶ : MonoBehaviour
     void Start()
     {
         _clickHandler = _button.GetAsyncClickEventHandler();
-        選択肢を選ぶAsync("003").FireAndForget();
+        RunAsync("003").FireAndForget();
     }
 
     void OnDestroy() => _clickHandler?.Dispose();
 
-    private async UniTask 選択肢を選ぶAsync(string storyName)
+    private async UniTask RunAsync(string storyName)
     {
         var story = await LoadStoryAsync(storyName);
         await ページ送りAsync(story);

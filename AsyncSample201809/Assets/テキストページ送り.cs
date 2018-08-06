@@ -13,10 +13,10 @@ public class テキストページ送り : MonoBehaviour
 
     void Start()
     {
-        テキストページ送りAsync().FireAndForget();
+        RunAsync().FireAndForget();
     }
 
-    private async Task テキストページ送りAsync()
+    private async Task RunAsync()
     {
         for (var i = 1; i < 10; i++)
         {
