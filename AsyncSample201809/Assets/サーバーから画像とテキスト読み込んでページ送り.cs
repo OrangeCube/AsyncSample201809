@@ -27,16 +27,13 @@ public class サーバーから画像とテキスト読み込んでページ送�
         await ページ送りAsync(story);
     }
 
-    private struct StoryContent
+    private readonly struct StoryContent
     {
         public Texture2D Image { get; }
         public string Text { get; }
 
         public StoryContent(Texture2D image, string text)
-        {
-            Image = image;
-            Text = text;
-        }
+            => (Image, Text) = (image, text);
     }
 
     private async Task<StoryContent[]> LoadStoryAsync(string storyName)

@@ -41,7 +41,7 @@ public class 例外処理_画像が読み込めないときにログを出しな
         await ページ送りAsync(story);
     }
 
-    private struct StoryContent
+    private readonly struct StoryContent
     {
         public int Id { get; }
         public Texture2D Image { get; }
@@ -49,24 +49,15 @@ public class 例外処理_画像が読み込めないときにログを出しな
         public SelectionContent[] SelectionContents { get; }
 
         public StoryContent(int id, Texture2D image, string text, SelectionContent[] selectionContents)
-        {
-            Id = id;
-            Image = image;
-            Text = text;
-            SelectionContents = selectionContents;
-        }
+            => (Id, Image, Text, SelectionContents) = (id, image, text, selectionContents);
     }
 
-    private struct SelectionContent
+    private readonly struct SelectionContent
     {
         public string Message { get; }
         public int StoryId { get; }
 
-        public SelectionContent(string message, int storyId) : this()
-        {
-            Message = message;
-            StoryId = storyId;
-        }
+        public SelectionContent(string message, int storyId) => (Message, StoryId) = (message, storyId);
     }
 
     private async UniTask<StoryContent[]> LoadStoryAsync(string storyName)
