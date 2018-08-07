@@ -41,7 +41,7 @@ public class 画像の逐次読み込み : MonoBehaviour
         await ページ送りAsync(story);
     }
 
-    private struct StoryContent
+    private readonly struct StoryContent
     {
         public int Id { get; }
         public UniTask<Texture2D> ImageTask { get; }
@@ -49,24 +49,15 @@ public class 画像の逐次読み込み : MonoBehaviour
         public SelectionContent[] SelectionContents { get; }
 
         public StoryContent(int id, UniTask<Texture2D> imageTask, string text, SelectionContent[] selectionContents)
-        {
-            Id = id;
-            ImageTask = imageTask;
-            Text = text;
-            SelectionContents = selectionContents;
-        }
+            => (Id, ImageTask, Text, SelectionContents) = (id, imageTask, text, selectionContents);
     }
 
-    private struct SelectionContent
+    private readonly struct SelectionContent
     {
         public string Message { get; }
         public int StoryId { get; }
 
-        public SelectionContent(string message, int storyId) : this()
-        {
-            Message = message;
-            StoryId = storyId;
-        }
+        public SelectionContent(string message, int storyId) => (Message, StoryId) = (message, storyId);
     }
 
     private async UniTask<StoryContent[]> LoadStoryAsync(string storyName)
@@ -79,7 +70,7 @@ public class 画像の逐次読み込み : MonoBehaviour
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
             .Split(new[] { "\r\n", BOM }, StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select<string, UniTask<StoryContent>>(async x =>
+            .Select(x =>
             {
                 var content = x.Split(',');
                 var selectionContents = content.Skip(3).Select(y =>
@@ -93,7 +84,7 @@ public class 画像の逐次読み込み : MonoBehaviour
                 return new StoryContent(storyId, LoadImageAsync(storyId != 3 ? content[1] : "NotFoundFileName"), content[2], selectionContents.ToArray());
             });
 
-        return await UniTask.WhenAll(contents);
+        return contents.ToArray();
     }
 
     public class ResourceLoadException : Exception
