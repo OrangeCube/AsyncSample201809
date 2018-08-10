@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UniRx.Async;
 using UnityEngine;
@@ -57,3 +58,11 @@ public static partial class TaskExtensions
         }
     }
 }
+
+/// <summary>
+/// 非同期メソッド用共通デリゲート。
+/// </summary>
+/// <typeparam name="TResult"></typeparam>
+/// <param name="ct"></param>
+/// <returns></returns>
+public delegate UniTask<TResult> AsyncFunc<TResult>(CancellationToken ct);
