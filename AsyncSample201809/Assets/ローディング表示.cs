@@ -8,7 +8,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
-public class 画像の逐次読み込み : MonoBehaviour
+public class ローディング表示 : MonoBehaviour
 {
     [SerializeField]
     private Text _text;
@@ -47,12 +47,12 @@ public class 画像の逐次読み込み : MonoBehaviour
     private readonly struct StoryContent
     {
         public int Id { get; }
-        public UniTask<Texture2D> ImageTask { get; }
+        public Texture2D Image { get; }
         public string Text { get; }
         public SelectionContent[] SelectionContents { get; }
 
-        public StoryContent(int id, UniTask<Texture2D> imageTask, string text, SelectionContent[] selectionContents)
-            => (Id, ImageTask, Text, SelectionContents) = (id, imageTask, text, selectionContents);
+        public StoryContent(int id, Texture2D image, string text, SelectionContent[] selectionContents)
+            => (Id, Image, Text, SelectionContents) = (id, image, text, selectionContents);
     }
 
     private readonly struct SelectionContent
@@ -73,7 +73,7 @@ public class 画像の逐次読み込み : MonoBehaviour
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
             .Split(new[] { "\r\n", BOM }, StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(x =>
+            .Select<string, UniTask<StoryContent>>(async x =>
             {
                 var content = x.Split(',');
                 var selectionContents = content.Skip(3).Select(y =>
@@ -83,11 +83,22 @@ public class 画像の逐次読み込み : MonoBehaviour
                 });
 
                 var storyId = int.Parse(content[0]);
+                Texture2D image = null;
+                try
+                {
+                    image = await LoadImageAsync(storyId != 3 ? content[1] : "NotFoundFileName");
+                }
+                catch(ResourceLoadException ex)
+                {
+                    // 画像読み込み時の例外処理
+                    // 今回はログを出しつつ処理を継続させる
+                    Debug.LogWarning(ex);
+                }
 
-                return new StoryContent(storyId, _loadinPanel.LoadingOn(LoadImageAsync(storyId != 3 ? content[1] : "NotFoundFileName")), content[2], selectionContents.ToArray());
+                return new StoryContent(storyId, image, content[2], selectionContents.ToArray());
             });
 
-        return contents.ToArray();
+        return await UniTask.WhenAll(contents);
     }
 
     public class ResourceLoadException : Exception
@@ -121,18 +132,7 @@ public class 画像の逐次読み込み : MonoBehaviour
         while (true)
         {
             _text.text = content.Text;
-            Texture2D image = null;
-            try
-            {
-                image = await content.ImageTask;
-            }
-            catch (ResourceLoadException ex)
-            {
-                // 画像読み込み時の例外処理
-                // 今回はログを出しつつ処理を継続させる
-                Debug.LogWarning(ex);
-            }
-            _image.texture = image;
+            _image.texture = content.Image;
 
             var nextContentId = 0;
             if (content.SelectionContents.Any())
