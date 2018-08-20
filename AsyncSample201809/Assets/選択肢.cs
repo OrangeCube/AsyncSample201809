@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
-using UniRx;
 using UniRx.Async;
 using UnityEngine;
 using UnityEngine.UI;
@@ -14,20 +12,13 @@ public class 選択肢 : MonoBehaviour
     [SerializeField]
     private Button _button;
 
-    private IObservable<Unit> _onClick;
-
-    private void Awake()
-    {
-        _onClick = _button.OnClickAsObservable();
-    }
-
     public async UniTask<int> AwaitSelect(string message, int storyId, CancellationToken ct)
     {
         try
         {
             _text.text = message;
 
-            await _onClick.ToUniTask(ct, true);
+            await _button.onClick.OnInvokeAsync(ct);
 
             return storyId;
         }
