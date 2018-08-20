@@ -115,15 +115,7 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
         using (var request = UnityWebRequestTexture.GetTexture(url))
         {
             var a = request.SendWebRequest().ConfigureAwait(cancellation: ct);
-            try
-            {
-                await a;
-            }
-            finally
-            {
-                Debug.Log(a.Status);
-            }
-
+            await a;
 
             if (!string.IsNullOrEmpty(request.error))
                 throw new ResourceLoadException(imageName, request.responseCode, request.error);
@@ -143,19 +135,9 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
             Texture2D image = null;
             try
             {
-                try
-                {
-                    image = await content.ImageTask(ct);
-                }
-                catch(OperationCanceledException)
-                {
-                    image = null;
-                }
-
-                // UniTaskのキャンセル処理が直れば下のコードで行ける
-                //var (isCanceled, texture) = await content.ImageTask(ct).WithIsCanceled();
-                //if (!isCanceled)
-                //    image = texture;
+                var (isCanceled, texture) = await content.ImageTask(ct).SuppressCancellationThrow();
+                if (!isCanceled)
+                    image = texture;
             }
             catch (ResourceLoadException ex)
             {
@@ -171,15 +153,9 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
                 using (var cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
                     var 選択肢 = Create選択肢(content.SelectionContents, cts.Token);
-                    try
-                    {
-                        nextContentId = (await UniTask.WhenAny(選択肢.ToArray())).result;
-                        cts.Cancel();
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        nextContentId = content.Id + 1;
-                    }
+                    var (isCanceled, firstTask) = await UniTask.WhenAny(選択肢.ToArray()).SuppressCancellationThrow();
+                    nextContentId = isCanceled ? content.Id + 1 : firstTask.result;
+                    cts.Cancel();
                 }
 
                 foreach (Transform c in _選択肢Container)
@@ -192,7 +168,7 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
             }
             else
             {
-                await _onClick.ToUniTask(ct, true).WithIsCanceled();
+                await _onClick.ToUniTask(ct, true).SuppressCancellationThrow();
 
                 nextContentId = content.Id + 1;
             }
