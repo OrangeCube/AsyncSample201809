@@ -31,7 +31,7 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
     [SerializeField]
     private Button _skipButton;
 
-    private IObservable<Unit> _onClick;
+    private IAsyncClickEventHandler _clickHandler;
 
     private CancellationTokenSource _skipCts;
 
@@ -40,9 +40,11 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
         _skipCts = CancellationTokenSource.CreateLinkedTokenSource(CancelOnDestroy);
         _skipButton.OnClickAsObservable().Subscribe(_ => _skipCts.Cancel()).AddTo(Disposables);
 
-        _onClick = _button.OnClickAsObservable();
+        _clickHandler = _button.GetAsyncClickEventHandler();
         RunAsync("003", _skipCts.Token).FireAndForget();
     }
+
+    void OnDestroy() => _clickHandler?.Dispose();
 
     private async UniTask RunAsync(string storyName, CancellationToken ct)
     {
@@ -168,7 +170,7 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
             }
             else
             {
-                await _onClick.ToUniTask(ct, true).SuppressCancellationThrow();
+                await _clickHandler.OnClickAsync(ct).SuppressCancellationThrow();
 
                 nextContentId = content.Id + 1;
             }
