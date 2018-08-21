@@ -46,7 +46,7 @@ public class サーバーから画像とテキスト読み込んでページ送�
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
             .Split(new[] { "\r\n", BOM }, System.StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select(async x =>
+            .Select<string, Task<StoryContent>>(async x =>
             {
                 var content = x.Split(',');
                 return new StoryContent(await LoadImageAsync(content[0]), content[1]);

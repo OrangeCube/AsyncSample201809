@@ -165,7 +165,7 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
             }
             else
             {
-                await _button.onClick.OnInvokeAsync(ct).SuppressCancellationThrow();
+                await _button.OnClickAsync(ct).SuppressCancellationThrow();
 
                 nextContentId = content.Id + 1;
             }
