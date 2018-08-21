@@ -47,11 +47,11 @@ public class 画像の逐次読み込み : MonoBehaviour
     private readonly struct StoryContent
     {
         public int Id { get; }
-        public UniTask<Texture2D> ImageTask { get; }
+        public Func<UniTask<Texture2D>> ImageTask { get; }
         public string Text { get; }
         public SelectionContent[] SelectionContents { get; }
 
-        public StoryContent(int id, UniTask<Texture2D> imageTask, string text, SelectionContent[] selectionContents)
+        public StoryContent(int id, Func<UniTask<Texture2D>> imageTask, string text, SelectionContent[] selectionContents)
             => (Id, ImageTask, Text, SelectionContents) = (id, imageTask, text, selectionContents);
     }
 
@@ -84,7 +84,7 @@ public class 画像の逐次読み込み : MonoBehaviour
 
                 var storyId = int.Parse(content[0]);
 
-                return new StoryContent(storyId, _loadinPanel.LoadingOn(LoadImageAsync(storyId != 3 ? content[1] : "NotFoundFileName")), content[2], selectionContents.ToArray());
+                return new StoryContent(storyId, () => _loadinPanel.LoadingOn(LoadImageAsync(storyId != 3 ? content[1] : "NotFoundFileName")), content[2], selectionContents.ToArray());
             });
 
         return contents.ToArray();
@@ -124,7 +124,7 @@ public class 画像の逐次読み込み : MonoBehaviour
             Texture2D image = null;
             try
             {
-                image = await content.ImageTask;
+                image = await content.ImageTask();
             }
             catch (ResourceLoadException ex)
             {
