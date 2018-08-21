@@ -70,7 +70,7 @@ public class 選択肢を選ぶ : MonoBehaviour
         var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
             .Split(new[] { "\r\n", BOM }, StringSplitOptions.None)
             .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select<string, UniTask<StoryContent>>(async x =>
+            .Select(async x =>
             {
                 var content = x.Split(',');
                 var selectionContents = content.Skip(3).Select(y =>

@@ -18,7 +18,7 @@ public class 選択肢 : MonoBehaviour
         {
             _text.text = message;
 
-            await _button.onClick.OnInvokeAsync(ct);
+            await _button.OnClickAsync(ct);
 
             return storyId;
         }

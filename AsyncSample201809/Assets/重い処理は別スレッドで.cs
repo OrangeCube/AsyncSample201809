@@ -183,7 +183,7 @@ public class 重い処理は別スレッドで : TypedMonoBehaviour
             }
             else
             {
-                await _button.onClick.OnInvokeAsync(ct).SuppressCancellationThrow();
+                await _button.OnClickAsync(ct).SuppressCancellationThrow();
 
                 nextContentId = content.Id + 1;
             }
