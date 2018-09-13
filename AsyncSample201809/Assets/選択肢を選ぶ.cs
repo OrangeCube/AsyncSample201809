@@ -81,18 +81,12 @@ public class 選択肢を選ぶ : MonoBehaviour
             {
                 using (var cts = new CancellationTokenSource())
                 {
-                    var 選択肢 = content.SelectionContents.Create選択肢(_選択肢Prefab, _選択肢Container, cts.Token, _選択肢プール);
-                    nextContentId = (await UniTask.WhenAny(選択肢.ToArray())).result;
+                    var 選択肢待ち = content.SelectionContents.Await選択肢(_選択肢Prefab, _選択肢Container, cts.Token, _選択肢プール);
+                    nextContentId = await 選択肢待ち;
                     cts.Cancel();
                 }
 
-                foreach (Transform c in _選択肢Container)
-                {
-                    if (!c.gameObject.activeSelf)
-                        continue;
-                    c.gameObject.SetActive(false);
-                    _選択肢プール.Push(c.GetComponent<選択肢>());
-                }
+                Release選択肢();
             }
             else
             {
@@ -106,6 +100,17 @@ public class 選択肢を選ぶ : MonoBehaviour
         }
 
         _text.text = "おわり";
+    }
+
+    private void Release選択肢()
+    {
+        foreach (Transform c in _選択肢Container)
+        {
+            if (!c.gameObject.activeSelf)
+                continue;
+            c.gameObject.SetActive(false);
+            _選択肢プール.Push(c.GetComponent<選択肢>());
+        }
     }
 
     private Stack<選択肢> _選択肢プール = new Stack<選択肢>();

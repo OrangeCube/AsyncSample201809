@@ -42,6 +42,13 @@ public struct SelectionContentModel
 
 public static class 選択肢Extensions
 {
+    public static async UniTask<int> Await選択肢(this SelectionContentModel[] selectionContents, GameObject prefab, Transform parent, CancellationToken ct, Stack<選択肢> pool = null)
+    {
+        var 選択肢 = selectionContents.Create選択肢(prefab, parent, ct, pool);
+        var (index, result) = await UniTask.WhenAny(選択肢.ToArray());
+        return result;
+    }
+
     public static IEnumerable<UniTask<int>> Create選択肢(this SelectionContentModel[] selectionContents, GameObject prefab, Transform parent, CancellationToken ct, Stack<選択肢> pool = null)
     {
         foreach (var content in selectionContents)

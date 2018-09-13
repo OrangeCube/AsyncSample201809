@@ -105,19 +105,13 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
             {
                 using (var cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
-                    var 選択肢 = content.SelectionContents.Create選択肢(_選択肢Prefab, _選択肢Container, cts.Token, _選択肢プール);
-                    var (isCanceled, firstTask) = await UniTask.WhenAny(選択肢.ToArray()).SuppressCancellationThrow();
-                    nextContentId = isCanceled ? content.Id + 1 : firstTask.result;
+                    var 選択肢待ち = content.SelectionContents.Await選択肢(_選択肢Prefab, _選択肢Container, cts.Token, _選択肢プール);
+                    var (isCanceled, result) = await 選択肢待ち.SuppressCancellationThrow();
+                    nextContentId = isCanceled ? content.Id + 1 : result;
                     cts.Cancel();
                 }
 
-                foreach (Transform c in _選択肢Container)
-                {
-                    if (!c.gameObject.activeSelf)
-                        continue;
-                    c.gameObject.SetActive(false);
-                    _選択肢プール.Push(c.GetComponent<選択肢>());
-                }
+                Release選択肢();
             }
             else
             {
@@ -131,6 +125,17 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
         }
 
         _text.text = "おわり";
+    }
+
+    private void Release選択肢()
+    {
+        foreach (Transform c in _選択肢Container)
+        {
+            if (!c.gameObject.activeSelf)
+                continue;
+            c.gameObject.SetActive(false);
+            _選択肢プール.Push(c.GetComponent<選択肢>());
+        }
     }
 
     private Stack<選択肢> _選択肢プール = new Stack<選択肢>();
