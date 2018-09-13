@@ -57,15 +57,11 @@ public class 選択肢を選ぶ : MonoBehaviour
         var story = await storyName.LoadStoryTextAsync();
 
         var contents = story.Select(async x =>
-            {
-                var content = x.Split(',');
-                var selectionContents = content.Skip(3).Select(y =>
-                {
-                    var selectionContentData = y.Split(':');
-                    return new SelectionContentModel(selectionContentData[0], int.Parse(selectionContentData[1]));
-                });
-                return new StoryContent(int.Parse(content[0]), await content[1].LoadImageAsync(), content[2], selectionContents.ToArray());
-            });
+        {
+            string[] content = x.Split(',');
+            var selectionContents = content.ParseSelectionContentModels();
+            return new StoryContent(int.Parse(content[0]), await content[1].LoadImageAsync(), content[2], selectionContents.ToArray());
+        });
 
         return await UniTask.WhenAll(contents);
     }
