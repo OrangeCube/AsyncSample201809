@@ -61,11 +61,7 @@ public class 例外処理_画像が読み込めないときにログを出しな
             .Select(async x =>
             {
                 var content = x.Split(',');
-                var selectionContents = content.Skip(3).Select(y =>
-                {
-                    var selectionContentData = y.Split(':');
-                    return new SelectionContentModel(selectionContentData[0], int.Parse(selectionContentData[1]));
-                });
+                var selectionContents = content.ParseSelectionContentModels();
 
                 var storyId = int.Parse(content[0]);
                 Texture2D image = null;

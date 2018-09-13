@@ -67,11 +67,7 @@ public class 全体キャンセルと部分キャンセル : TypedMonoBehaviour
             .Select(x =>
             {
                 var content = x.Split(',');
-                var selectionContents = content.Skip(3).Select(y =>
-                {
-                    var selectionContentData = y.Split(':');
-                    return new SelectionContentModel(selectionContentData[0], int.Parse(selectionContentData[1]));
-                });
+                var selectionContents = content.ParseSelectionContentModels();
 
                 var storyId = int.Parse(content[0]);
 

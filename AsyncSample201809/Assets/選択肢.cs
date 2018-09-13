@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using UniRx.Async;
 using UnityEngine;
@@ -53,5 +54,14 @@ public static class 選択肢Extensions
             }
             yield return instance.GetComponent<選択肢>().AwaitSelect(content.Message, content.StoryId, ct);
         }
+    }
+
+    public static IEnumerable<SelectionContentModel> ParseSelectionContentModels(this string[] content)
+    {
+        return content.Skip(3).Select(y =>
+        {
+            var selectionContentData = y.Split(':');
+            return new SelectionContentModel(selectionContentData[0], int.Parse(selectionContentData[1]));
+        });
     }
 }
