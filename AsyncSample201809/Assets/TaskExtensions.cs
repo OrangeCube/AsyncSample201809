@@ -43,6 +43,47 @@ public static partial class TaskExtensions
         });
     }
 
+    #region Task 風 ContinueWith
+
+    /// <summary>
+    /// <see cref="Task.ContinueWith(Action{Task})"/>相当の挙動をする ContinueWith
+    /// </summary>
+    /// <remarks>
+    /// <see cref="UniTaskExtensions.ContinueWith(UniTask, Action)"/>はタスクが正常終了したときしか continuationFunction が呼ばれないため本家タスクと挙動が異なる
+    /// </remarks>
+    /// <param name="task"></param>
+    /// <param name="continuationFunction"></param>
+    /// <returns></returns>
+    public static async UniTask ContinueWith(this UniTask task, Action<UniTask> continuationFunction)
+    {
+        try { await task; }
+        catch { }
+        continuationFunction(task);
+    }
+
+    public static async UniTask<T> ContinueWith<T>(this UniTask task, Func<UniTask, T> continuationFunction)
+    {
+        try { await task; }
+        catch { }
+        return continuationFunction(task);
+    }
+
+    public static async UniTask ContinueWith<T>(this UniTask<T> task, Action<UniTask<T>> continuationFunction)
+    {
+        try { await task; }
+        catch { }
+        continuationFunction(task);
+    }
+
+    public static async UniTask<R> ContinueWith<T, R>(this UniTask<T> task, Func<UniTask<T>, R> continuationFunction)
+    {
+        try { await task; }
+        catch { }
+        return continuationFunction(task);
+    }
+
+    #endregion
+
     public static async UniTask<IEnumerable<string>> LoadStoryTextAsync(this string storyName, CancellationToken ct = default(CancellationToken))
     {
         using (var req = UnityWebRequest.Get($"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Story/{storyName}.txt"))

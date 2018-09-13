@@ -21,6 +21,7 @@ public class UniTaskのCancelの挙動 : MonoBehaviour
     private async UniTask RunAsync1()
     {
         var a = RunAsyncInternal1();
+        a.ContinueWith(_ => Debug.Log("ContinueWith RunAsyncInternal1")).FireAndForget();
         try
         {
             await a;
@@ -52,6 +53,7 @@ public class UniTaskのCancelの挙動 : MonoBehaviour
     private async Task RunAsync2()
     {
         var a = RunAsyncInternal2();
+        a.ContinueWith(() => Debug.Log("ContinueWith RunAsyncInternal2")).FireAndForget();
         try
         {
             await a;

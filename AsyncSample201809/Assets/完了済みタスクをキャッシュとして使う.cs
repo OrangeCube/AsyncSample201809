@@ -136,7 +136,7 @@ public class 完了済みタスクをキャッシュとして使う : TypedMonoB
             {
                 using (var cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
                 {
-                    var 選択肢 = content.SelectionContents.Create選択肢(_選択肢Prefab, _選択肢Container, _選択肢プール, cts.Token);
+                    var 選択肢 = content.SelectionContents.Create選択肢(_選択肢Prefab, _選択肢Container, cts.Token, _選択肢プール);
                     var (isCanceled, firstTask) = await UniTask.WhenAny(選択肢.ToArray()).SuppressCancellationThrow();
                     nextContentId = isCanceled ? content.Id + 1 : firstTask.result;
                     cts.Cancel();
