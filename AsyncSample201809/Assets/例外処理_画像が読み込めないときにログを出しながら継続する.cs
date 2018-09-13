@@ -31,7 +31,7 @@ public class 例外処理_画像が読み込めないときにログを出しな
     void Start()
     {
         _clickHandler = _button.GetAsyncClickEventHandler();
-        RunAsync("003").FireAndForget();
+        RunAsync("004").FireAndForget();
     }
 
     void OnDestroy() => _clickHandler?.Dispose();
@@ -71,7 +71,7 @@ public class 例外処理_画像が読み込めないときにログを出しな
                 Texture2D image = null;
                 try
                 {
-                    image = await (storyId != 3 ? content[1] : "NotFoundFileName").LoadImageAsync();
+                    image = await content[1].LoadImageAsync();
                 }
                 catch (ResourceLoadException ex)
                 {
