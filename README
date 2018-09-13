@@ -1,4 +1,4 @@
-勉強会用のasync/awaitのサンプルです。
+https://connpass.com/event/95696/ の勉強会用のasync/awaitのサンプルです。
 
 RPGなどの会話シーンを題材に以下の機能をasync/awaitを用いて実装していきます。
 * クリックでのテキスト送り
