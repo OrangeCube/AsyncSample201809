@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class サーバーから画像とテキスト読み込んでページ送り : MonoBehaviour
@@ -38,33 +39,30 @@ public class サーバーから画像とテキスト読み込んでページ送�
 
     private async Task<StoryContent[]> LoadStoryAsync(string storyName)
     {
-        var www = new WWW($"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Story/{storyName}.txt");
+        using (var req = UnityWebRequest.Get($"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Story/{storyName}.txt"))
+        {
+            await req.SendWebRequest();
 
-        await www;
+            var contents = req.downloadHandler.text
+                .Split(new[] { "\r\n" }, System.StringSplitOptions.None)
+                .Where(x => !string.IsNullOrEmpty(x))
+                .Select<string, Task<StoryContent>>(async x =>
+                {
+                    var content = x.Split(',');
+                    return new StoryContent(await LoadImageAsync(content[0]), content[1]);
+                });
 
-        const string BOM = "\uFEFF";
-        var contents = System.Text.Encoding.UTF8.GetString(www.bytes)
-            .Split(new[] { "\r\n", BOM }, System.StringSplitOptions.None)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .Select<string, Task<StoryContent>>(async x =>
-            {
-                var content = x.Split(',');
-                return new StoryContent(await LoadImageAsync(content[0]), content[1]);
-            });
-
-        return await Task.WhenAll(contents);
+            return await Task.WhenAll(contents);
+        }
     }
-
     private async Task<Texture2D> LoadImageAsync(string imageName)
     {
         var url = $"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Images/{imageName}.png";
-        Debug.Log(url);
-
-        var www = new WWW(url);
-
-        await www;
-
-        return www.texture;
+        using (var req = UnityWebRequestTexture.GetTexture(url))
+        {
+            await req.SendWebRequest();
+            return DownloadHandlerTexture.GetContent(req);
+        }
     }
 
     private async Task ページ送りAsync(StoryContent[] story)

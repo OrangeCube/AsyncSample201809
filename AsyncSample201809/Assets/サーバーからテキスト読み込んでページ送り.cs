@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using UniRx;
 using UniRx.Async;
 using UnityEngine;
+using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class サーバーからテキスト読み込んでページ送り : MonoBehaviour
@@ -26,14 +27,15 @@ public class サーバーからテキスト読み込んでページ送り : Mono
 
     private async Task<string[]> LoadStoryAsync(string storyName)
     {
-        var www = new WWW($"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Story/{storyName}.txt");
+        using (var req = UnityWebRequest.Get($"https://raw.githubusercontent.com/OrangeCube/AsyncSample201809/master/RemoteResources/Story/{storyName}.txt"))
+        {
+            await req.SendWebRequest();
 
-        await www;
-
-        return System.Text.Encoding.UTF8.GetString(www.bytes)
-            .Split(new[] { "\r\n" }, System.StringSplitOptions.None)
-            .Where(x => !string.IsNullOrWhiteSpace(x))
-            .ToArray();
+            return req.downloadHandler.text
+                .Split(new[] { "\r\n" }, System.StringSplitOptions.None)
+                .Where(x => !string.IsNullOrWhiteSpace(x))
+                .ToArray();
+        }
     }
 
     private async Task テキストページ送りAsync(string[] story)
