@@ -1,6 +1,6 @@
-https://connpass.com/event/95696/ の勉強会用のasync/awaitのサンプルです。
+https://connpass.com/event/95696/ の勉強会用の async/await のサンプルです。
 
-RPGなどのドラマパート(会話シーン)を題材に以下の機能をasync/awaitを用いて実装していきます。
+RPGなどのドラマパート(会話シーン)を題材に以下の機能を async/await を用いて実装していきます。
 * クリックでのテキスト送り
 * ネットワークからのテキスト読み込み
 * ネットワークからの画像読み込み
@@ -16,6 +16,7 @@ RPGなどのドラマパート(会話シーン)を題材に以下の機能をasy
 Unity2018.2.4f1
 Unity2018.2.7f1
 
-サンプル中でUniRxの機能を使用しているため、サンプルを試すにはAssetStoreからUniRxをインポートしておく必要があります。
-また、.Net Framework 4.7.1 の機能を使用しているため https://www.microsoft.com/net/download/thank-you/net471-developer-pack からSDKをダウンロードしてインストールしておく必要があります。
+サンプル中でUniRxの機能を使用しているため、サンプルを試すには AssetStore から UniRx をインポートしておく必要があります。
+
+また、.Net Framework 4.7.1 の機能を使用しているため https://www.microsoft.com/net/download/thank-you/net471-developer-pack から SDK をダウンロードしてインストールしておく必要があります。
 
