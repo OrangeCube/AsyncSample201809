@@ -81,7 +81,7 @@ public class 選択肢を選ぶ : MonoBehaviour
             {
                 using (var cts = new CancellationTokenSource())
                 {
-                    var 選択肢 = content.SelectionContents.Create選択肢(_選択肢Prefab, _選択肢Container, _選択肢プール, cts.Token);
+                    var 選択肢 = content.SelectionContents.Create選択肢(_選択肢Prefab, _選択肢Container, cts.Token, _選択肢プール);
                     nextContentId = (await UniTask.WhenAny(選択肢.ToArray())).result;
                     cts.Cancel();
                 }

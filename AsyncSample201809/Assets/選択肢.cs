@@ -42,7 +42,7 @@ public struct SelectionContentModel
 
 public static class 選択肢Extensions
 {
-    public static IEnumerable<UniTask<int>> Create選択肢(this SelectionContentModel[] selectionContents, GameObject prefab, Transform parent, Stack<選択肢> pool, CancellationToken ct)
+    public static IEnumerable<UniTask<int>> Create選択肢(this SelectionContentModel[] selectionContents, GameObject prefab, Transform parent, CancellationToken ct, Stack<選択肢> pool = null)
     {
         foreach (var content in selectionContents)
         {
@@ -52,7 +52,12 @@ public static class 選択肢Extensions
                 instance.SetActive(true);
                 instance.transform.SetAsLastSibling();
             }
-            yield return instance.GetComponent<選択肢>().AwaitSelect(content.Message, content.StoryId, ct);
+            var task = instance.GetComponent<選択肢>().AwaitSelect(content.Message, content.StoryId, ct);
+
+            if (pool == null)
+                task.ContinueWith(_ => UnityEngine.Object.Destroy(instance)).Forget();
+
+            yield return task;
         }
     }
 
